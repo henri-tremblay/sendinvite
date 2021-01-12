@@ -132,14 +132,14 @@ public class SendInvite {
 
         System.out.println(event);
 
-//        String calendarId = "primary";
-//        try {
-//            event = calendar.events().insert(calendarId, event)
-//                    .setSendNotifications(true)
-//                    .execute();
-//        } catch (IOException e) {
-//            throw new UncheckedIOException(e);
-//        }
-//        System.out.printf("Event created: %s\n", event.getHtmlLink());
+        String calendarId = "primary";
+        try {
+            event = calendar.events().insert(calendarId, event)
+                    .setSendNotifications(true)
+                    .execute();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        System.out.printf("Event created: %s\n", event.getHtmlLink());
     }
 }
