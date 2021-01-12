@@ -9,15 +9,10 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.format.FormatStyle;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,7 +37,7 @@ public class SendInvite {
 
         Files.lines(Paths.get("slots.csv"), StandardCharsets.UTF_8)
                 .skip(1)
-                .map(line -> line.split(","))
+                .map(line -> line.split(";"))
                 .map(tokens -> new Object() {
                     // Day,Room,Time (EST),Title,Speaker 1,Speaker 2,Moderator,Guest URL,YouTube URL
                     final String day = tokens[0];
@@ -78,7 +73,13 @@ public class SendInvite {
                     final ZonedDateTime endTime = startTime.plusHours(1);
                     final String[] attendees = Stream.of(tuple.speaker1, tuple.speaker2, tuple.moderator)
                             .filter(p -> p != null && !p.isBlank())
-                            .map(people::get)
+                            .map(p -> {
+                                String email = people.get(p);
+                                if(email == null) {
+                                    throw new IllegalArgumentException("Unknown name: " + p);
+                                }
+                                return email;
+                            })
                             .toArray(String[]::new);
 
                 })
@@ -95,7 +96,7 @@ public class SendInvite {
     private static Map<String, String> readPeople() {
         try {
             return Files.lines(Paths.get("people.csv"), StandardCharsets.UTF_8)
-                    .map(line -> line.split(","))
+                    .map(line -> line.split(";"))
                     .map(tokens -> new Object() {
                         final String name = tokens[0];
                         final String email = tokens[1];
